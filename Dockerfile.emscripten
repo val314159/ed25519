@@ -1,0 +1,1 @@
+FROM trzeci/emscripten
