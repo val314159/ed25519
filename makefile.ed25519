@@ -1,0 +1,16 @@
+# -*- Makefile -*-
+EM=docker run -v `pwd`:`pwd` -w `pwd` trzeci/emscripten emcc
+all: ed25519.a2 ed25519.so
+%.so:   %.a           ;$(CC) $^ -o $@ -shared -fPIC
+%:      %.c ed25519.a ;$(CC) $^ -o $@
+%.js:   %.c ed25519.a2;$(EM) $^ -o $@
+%.wasm: %.c ed25519.a2;$(EM) $^ -o $@
+%.html: %.c ed25519.a2;$(EM) $^ -o $@
+%.bc:   %.c           ;$(EM) $^ -o $@ -c
+ed25519.a2:;$(EM) -c ed25519/*.c; ar r $@ *.o;rm *.o
+ed25519.a: ;$(CC) -c ed25519/*.c; ar r $@ *.o;rm *.o
+clean:;rm -fr *.o *.a *.a2 *.so *.js *.html *.wasm test test2 *~
+dockclean:
+	@docker rm -f `docker ps     -aq` 2>/dev/null;\
+	docker rmi -f `docker images -aq` 2>/dev/null;\
+	test -a
